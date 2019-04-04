@@ -1,0 +1,9 @@
+describe:  simply querying the wikipedia database via the commandline
+
+INSTALL:
+--------
+sudo apt-get install python
+pip install wptools
+cp describe to ~/bin or somewhere in your $PATH
+chmod u+x describe
+
