@@ -59,7 +59,7 @@ def main():
 		n = langcodes.index('--links')
 		listlinks = 1
 		langcodes.pop(n)
-	if "--wiki"in langcodes:
+	if "--wiki" in langcodes:
 		n = langcodes.index('--wiki')
 		wikiurl = langcodes[n+1]
 		langcodes.pop(n)
