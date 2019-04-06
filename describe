@@ -9,6 +9,7 @@
 #           chmod u+x describe
 #
 # https://meta.wikimedia.org/wiki/List_of_Wikipedias
+# https://github.com/siznax/wptools/wiki
 #
 import wptools
 import sys
@@ -49,14 +50,29 @@ class suppress_stdout_stderr(object):
 def main():
 	argc = len(sys.argv)
 	if argc == 1:
-		print "describe <NAME> <WIKILANGUAGECODES>"
+		print "describe \"Some Name\" <WIKILANGUAGECODES> --links --wiki <wikiurl>"
 		return
 	langcodes = sys.argv[2:argc]
+	listlinks = 0
+	difwiki = 0
+	if "--links" in langcodes:
+		n = langcodes.index('--links')
+		listlinks = 1
+		langcodes.pop(n)
+	if "--wiki"in langcodes:
+		n = langcodes.index('--wiki')
+		wikiurl = langcodes[n+1]
+		langcodes.pop(n)
+		langcodes.pop(n)
+		difwiki = 1
 	if len(langcodes) == 0:
 		langcodes=['en']
 	for langc in langcodes:
 		try:
-			page = wptools.page(sys.argv[1], lang=langc)
+			if difwiki:
+				page = wptools.page(sys.argv[1], lang=langc, wiki=wikiurl)
+			else:
+				page = wptools.page(sys.argv[1], lang=langc)
 			with suppress_stdout_stderr():	
 				try:
 					page.get_query() 
@@ -68,8 +84,14 @@ def main():
 				print colored(page.data['description'].encode('utf-8').strip(), 'red')
 			if "extext" in page.data:
 				print page.data['extext'].encode('utf-8').strip()
+			if "links" in page.data:
+				if listlinks:
+					print colored('may refer to:','blue')
+					for l in page.data['links']:
+				  		print l.encode('utf-8').strip()
 			if "url" in page.data:
-				print colored(page.data['url'].encode('utf-8').strip(), 'blue')
+				url = page.data['url'].encode('utf-8').strip()
+				print colored(url, 'blue')
 			print '--'
 		except LookupError:
 			print langc+": Not found\n"
