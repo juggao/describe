@@ -17,22 +17,32 @@ from termcolor import colored
 def main():
     argc = len(sys.argv)
     if argc == 1:
-        print("describe \"Some Name\" <WIKILANGUAGECODES> --all")
+        print("describe \"Some Name\" <WIKILANGUAGECODES> --all --exact")
         return
     langcodes = sys.argv[2:argc]
     al = 0
+    exact = 0
     if "--all" in langcodes:
         n = langcodes.index('--all')
         al = 1
+        langcodes.pop(n)
+    if "--exact" in langcodes:
+        n = langcodes.index('--exact')
+        exact = 1
         langcodes.pop(n)
     if len(langcodes) == 0:
         langcodes=['en']
     for langc in langcodes:
         try:
             wikipedia.set_lang(langc)
-            page = wikipedia.search(sys.argv[1])
+            if exact == 0:
+                page = wikipedia.search(sys.argv[1])
+                page2 = wikipedia.page(page[0])
+            else:
+                page = wikipedia.search(sys.argv[1])
+                page2 = wikipedia.page(sys.argv[1], auto_suggest=False)
+                 
             print (colored(langc+":", 'green'))
-            page2 = wikipedia.page(page[0])
             b = bytearray(page2.title, 'utf-8')
             title = b.decode('utf-8')
             print (colored(title,'red', attrs=['bold']))
@@ -44,6 +54,8 @@ def main():
             print (colored(page2.url, 'blue'))
             print ('--')
         except wikipedia.exceptions.DisambiguationError as e:
+            print(e)
+        except wikipedia.exceptions.PageError as e:
             print(e)
         except LookupError:
             print (page)
