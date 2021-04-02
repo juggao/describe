@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-#
+#!/usr/bin/env python3
+
 # describe: query the wikipedia database from the commandline
 # AO-2019
 #
@@ -50,7 +50,7 @@ class suppress_stdout_stderr(object):
 def main():
 	argc = len(sys.argv)
 	if argc == 1:
-		print "describe \"Some Name\" <WIKILANGUAGECODES> --links --wiki <wikiurl>"
+		print("describe \"Some Name\" <WIKILANGUAGECODES> --links --wiki <wikiurl>")
 		return
 	langcodes = sys.argv[2:argc]
 	listlinks = 0
@@ -59,7 +59,7 @@ def main():
 		n = langcodes.index('--links')
 		listlinks = 1
 		langcodes.pop(n)
-	if "--wiki" in langcodes:
+	if "--wiki"in langcodes:
 		n = langcodes.index('--wiki')
 		wikiurl = langcodes[n+1]
 		langcodes.pop(n)
@@ -79,22 +79,22 @@ def main():
 				except pycurl.error as e:
 					print (e)
 					continue
-			print colored(langc+":", 'green')
+			print (colored(langc+":", 'green'))
 			if "description" in page.data:
-				print colored(page.data['description'].encode('utf-8').strip(), 'red')
+				print (colored(page.data['description'].encode('utf-8').strip(), 'red'))
 			if "extext" in page.data:
-				print page.data['extext'].encode('utf-8').strip()
+				print (page.data['extext'].encode('utf-8').strip())
 			if "links" in page.data:
 				if listlinks:
-					print colored('may refer to:','blue')
+					print(colored('may refer to:','blue'))
 					for l in page.data['links']:
-				  		print l.encode('utf-8').strip()
+				  		print(l.encode('utf-8').strip())
 			if "url" in page.data:
 				url = page.data['url'].encode('utf-8').strip()
-				print colored(url, 'blue')
-			print '--'
+				print(colored(url, 'blue'))
+			print ('--')
 		except LookupError:
-			print langc+": Not found\n"
+			print (langc+": Not found\n")
 
 				
 if __name__ == "__main__":
