@@ -2,8 +2,8 @@ describe:  simply querying the wikipedia database via the commandline
 
 INSTALL:
 --------
-sudo apt-get install python
-pip install wptools
+sudo apt-get install python3
+pip install wikipedia
 pip install termcolor
 cp describe to ~/bin or somewhere in your $PATH
 chmod u+x describe
