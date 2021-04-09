@@ -11,7 +11,7 @@
 import wikipedia
 import sys
 import os
-import pycurl
+import pycurl, requests
 from termcolor import colored
 
 def main():
@@ -46,7 +46,7 @@ def main():
             b = bytearray(page2.title, 'utf-8')
             title = b.decode('utf-8')
             print (colored(title,'red', attrs=['bold']))
-            if al:
+            if al: 
                 print (page2.content)
             else:
                 print (page2.summary)
@@ -57,8 +57,7 @@ def main():
             print(e)
         except wikipedia.exceptions.PageError as e:
             print(e)
-        except LookupError:
-            print (page)
+        except requests.exceptions.ConnectionError:
             print (langc+": Not found\n")
 
 				
