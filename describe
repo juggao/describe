@@ -12,6 +12,7 @@ import wikipedia
 import sys
 import os
 import pycurl, requests
+import webbrowser
 from termcolor import colored
 
 def main():
@@ -52,6 +53,7 @@ def main():
                 print (page2.summary)
             #print (page2.links)
             print (colored(page2.url, 'blue'))
+            webbrowser.open(page2.url)
             print ('--')
         except wikipedia.exceptions.DisambiguationError as e:
             print(e)
