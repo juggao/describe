@@ -3,64 +3,63 @@
 # describe2: query the wikipedia database from the commandline
 # AO-2021
 #
-# INSTALL : pip install wikipedia
-#           pip install termcolor
+# INSTALL : pip install -r requirements.txt
 #           cp describe ~/bin (or a location in your $PATH)
 #           chmod u+x describe
 #
-import wikipedia
-import sys
-import os
-import pycurl, requests
+import argparse
 import webbrowser
+
+import requests
+import wikipedia
 from termcolor import colored
 
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        prog="describe",
+        description="Query Wikipedia from the command line",
+    )
+    parser.add_argument("query", help="Wikipedia search term or exact page title")
+    parser.add_argument("langcodes", nargs="*", help="Wikipedia language codes, defaults to en")
+    parser.add_argument("--all", action="store_true", help="print the full article instead of the summary")
+    parser.add_argument("--exact", action="store_true", help="open the exact page title without search suggestions")
+    parser.add_argument("--browser", action="store_true", help="open the page in the default browser")
+    return parser.parse_args()
+
+
 def main():
-    argc = len(sys.argv)
-    if argc == 1:
-        print("describe \"Some Name\" <WIKILANGUAGECODES> --all --exact")
-        return
-    langcodes = sys.argv[2:argc]
-    al = 0
-    exact = 0
-    if "--all" in langcodes:
-        n = langcodes.index('--all')
-        al = 1
-        langcodes.pop(n)
-    if "--exact" in langcodes:
-        n = langcodes.index('--exact')
-        exact = 1
-        langcodes.pop(n)
-    if len(langcodes) == 0:
-        langcodes=['en']
+    args = parse_args()
+    langcodes = args.langcodes or ["en"]
+
     for langc in langcodes:
         try:
             wikipedia.set_lang(langc)
-            if exact == 0:
-                page = wikipedia.search(sys.argv[1])
-                page2 = wikipedia.page(page[0])
+            if args.exact:
+                page2 = wikipedia.page(args.query, auto_suggest=False)
             else:
-                page = wikipedia.search(sys.argv[1])
-                page2 = wikipedia.page(sys.argv[1], auto_suggest=False)
-                 
-            print (colored(langc+":", 'green'))
-            b = bytearray(page2.title, 'utf-8')
-            title = b.decode('utf-8')
-            print (colored(title,'red', attrs=['bold']))
-            if al: 
-                print (page2.content)
+                pages = wikipedia.search(args.query)
+                if not pages:
+                    print(f"{langc}: Not found\n")
+                    continue
+                page2 = wikipedia.page(pages[0])
+
+            print(colored(langc + ":", "green"))
+            print(colored(page2.title, "red", attrs=["bold"]))
+            if args.all:
+                print(page2.content)
             else:
-                print (page2.summary)
-            #print (page2.links)
-            print (colored(page2.url, 'blue'))
-            webbrowser.open(page2.url)
-            print ('--')
+                print(page2.summary)
+            print(colored(page2.url, "blue"))
+            if args.browser:
+                webbrowser.open(page2.url)
+            print("--")
         except wikipedia.exceptions.DisambiguationError as e:
             print(e)
         except wikipedia.exceptions.PageError as e:
             print(e)
-        except requests.exceptions.ConnectionError:
-            print (langc+": Not found\n")
+        except requests.exceptions.RequestException:
+            print(f"{langc}: Not found\n")
 
 				
 if __name__ == "__main__":
